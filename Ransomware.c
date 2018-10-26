@@ -8,14 +8,13 @@
 
 	int getSize(FILE *file);
 	int cipher(BYTE *fileData, int fileSize, char *key);
-	char *generateKey(int stringLen);
 
 int main()
 {
 
 	FILE *file;
 
-	char *key =  generateKey(T);;
+	char key[] = {"Vª╣Ù#A*~#═¸Ù#3¢kéî¤F¾°sú▀wtèklsy±?Çd¤■7┴iß'üÆÍE©æ¬Ë╚░╝Øz?fFò"}; 
 
 	char fileName[] = {"teste.txt"};
 	int fileSize;
@@ -56,19 +55,6 @@ int cipher(BYTE *fileData, int fileSize, char *key)
 	fclose(file);
 	
 	return 0;
-}
-
-char *generateKey(int stringLen)
-{	
-	int i;
-	char *key = malloc(stringLen + 1);
-	srand(time(NULL));
-
-	for (i = 0; i < stringLen; ++i){
-		key[i] = 32 + rand()%223;
-	}
-
-	return key;
 }
 
 int getSize(FILE *file)
